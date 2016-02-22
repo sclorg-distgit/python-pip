@@ -2,7 +2,7 @@
 %{!?scl:%global pkg_name %{name}}
 
 %if (! 0%{?rhel}) || 0%{?rhel} > 6
-%global build_wheel 0
+%global build_wheel 1
 %endif
 %if 0%{?rhel} && 0%{?rhel} < 6
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
@@ -15,7 +15,7 @@
 
 Name:           %{?scl_prefix}python-%{srcname}
 Version:        7.1.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A tool for installing and managing Python packages
 
 Group:          Development/Libraries
@@ -88,6 +88,9 @@ pip3 install -I dist/%{python3_wheelname} --root %{buildroot} --strip-file-prefi
 %{python3_sitelib}/pip*
 
 %changelog
+* Sat Feb 13 2016 Robert Kuska <rkuska@redhat.com> - 7.1.0-2
+- Rebuilt with rewheel
+
 * Sat Feb 13 2016 Robert Kuska <rkuska@redhat.com> - 7.1.0-1
 - Rebuilt for rh-python35
 
