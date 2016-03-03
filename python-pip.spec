@@ -8,12 +8,17 @@
 
 %global srcname pip
 %if 0%{?build_wheel}
-%global python_wheelname %{srcname}-%{version}-py2.py3-none-any.whl
+%global python2_wheelname %{srcname}-%{version}-py2.py3-none-any.whl
+%endif
+
+%global bashcompdir %(b=$(pkg-config --variable=completionsdir bash-completion 2>/dev/null); echo ${b:-%{_sysconfdir}/bash_completion.d})
+%if "%{bashcompdir}" != "%{_sysconfdir}/bash_completion.d"
+%global bashcomp2 1
 %endif
 
 Name:           %{?scl_prefix}python-%{srcname}
-Version:        1.5.6
-Release:        5%{?dist}
+Version:        7.1.0
+Release:        1%{?dist}
 Summary:        A tool for installing and managing Python packages
 
 Group:          Development/Libraries
@@ -21,9 +26,6 @@ License:        MIT
 URL:            http://www.pip-installer.org
 Source0:        http://pypi.python.org/packages/source/p/pip/%{srcname}-%{version}.tar.gz
 Patch0:         pip-1.5rc1-allow-stripping-prefix-from-wheel-RECORD-files.patch
-
-# patch by dstufft, more at http://seclists.org/oss-sec/2014/q4/655
-Patch1:         local-dos.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -43,12 +45,12 @@ same techniques for finding packages, so packages that were made
 easy_installable should be pip-installable as well.
 
 
+
 %prep
 %{?scl:scl enable %{scl} - << \EOF}
 %setup -q -n %{srcname}-%{version}
 
 %patch0 -p1
-%patch1 -p1
 
 %{__sed} -i '1d' pip/__init__.py
 %{?scl:EOF}
@@ -69,26 +71,54 @@ easy_installable should be pip-installable as well.
 
 %{?scl:scl enable %{scl} - << \EOF}
 %if 0%{?build_wheel}
-pip install -I dist/%{python2_wheelname} --root %{buildroot} --strip-file-prefix %{buildroot}
+pip2 install -I dist/%{python2_wheelname} --root %{buildroot} --strip-file-prefix %{buildroot}
 %else
-%{__python2} setup.py install --skip-build --root %{buildroot}
+%{__python2} setup.py install -O1 --skip-build --root %{buildroot}
 %endif
-%{?scl:EOF}
 
+mkdir -p %{buildroot}%{bashcompdir}
+PYTHONPATH=%{buildroot}%{python_sitelib} \
+    %{buildroot}%{_bindir}/pip completion --bash \
+    > %{buildroot}%{bashcompdir}/pip
+pips2=pip
+for pip in %{buildroot}%{_bindir}/pip*; do
+    pip=$(basename $pip)
+    case $pip in
+        pip2*)
+            pips2="$pips2 $pip"
+%if 0%{?bashcomp2}
+            ln -s pip %{buildroot}%{bashcompdir}/$pip
+%endif
+    esac
+done
+
+sed -i -e "s/^\\(complete.*\\) pip\$/\\1 $pips2/" \
+    %{buildroot}%{bashcompdir}/pip
+%{?scl:EOF}
 
 %clean
 %{__rm} -rf %{buildroot}
 
-# unfortunately, pip's test suite requires virtualenv >= 1.6 which isn't in
-# fedora yet. Once it is, check can be implemented
 
 %files
 %defattr(-,root,root,-)
-%doc LICENSE.txt README.rst docs
-%attr(755,root,root) %{_bindir}/pip*
-%{python2_sitelib}/pip*
+%{!?_licensedir:%global license %%doc}
+%license LICENSE.txt
+%doc README.rst docs
+%attr(755,root,root) %{_bindir}/pip
+%attr(755,root,root) %{_bindir}/pip2*
+%{python_sitelib}/pip*
+%{bashcompdir}
+%if 0%{?bashcomp2}
+%dir %(dirname %{bashcompdir})
+%endif
+
 
 %changelog
+* Mon Feb 15 2016 Charalampos Stratakis <cstratak@redhat.com> - 7.1.0-1
+- Update to 7.1.0 
+Resolves: rhbz#1255516
+
 * Tue Jan 20 2015 Slavek Kabrda <bkabrda@redhat.com> - 1.5.6-5
 - Rebuild for python27 (not as wheel)
 Resolves: rhbz#994189
@@ -183,4 +213,3 @@ Resolves: rhbz#994189
 - upgrade to 0.6.1 of pip
 * Mon Aug 31 2009 Peter Halliday <phalliday@excelsiorsystems.net> - 0.4-1
 - Initial package
-
