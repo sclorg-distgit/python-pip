@@ -18,7 +18,7 @@
 
 Name:           %{?scl_prefix}python-%{srcname}
 Version:        7.1.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A tool for installing and managing Python packages
 
 Group:          Development/Libraries
@@ -102,9 +102,7 @@ sed -i -e "s/^\\(complete.*\\) pip\$/\\1 $pips2/" \
 
 %files
 %defattr(-,root,root,-)
-%{!?_licensedir:%global license %%doc}
-%license LICENSE.txt
-%doc README.rst docs
+%doc README.rst LICENSE.txt docs
 %attr(755,root,root) %{_bindir}/pip
 %attr(755,root,root) %{_bindir}/pip2*
 %{python_sitelib}/pip*
@@ -115,6 +113,11 @@ sed -i -e "s/^\\(complete.*\\) pip\$/\\1 $pips2/" \
 
 
 %changelog
+* Tue May 10 2016 Charalampos Stratakis <cstratak@redhat.com> - 7.1.0-2
+- Change license tag to doc tag so directory is owned by the collection
+- Will revert when ownership of directories is defined in scl-utils-build package
+Resolves: rhbz#1334447
+
 * Mon Feb 15 2016 Charalampos Stratakis <cstratak@redhat.com> - 7.1.0-1
 - Update to 7.1.0 
 Resolves: rhbz#1255516
