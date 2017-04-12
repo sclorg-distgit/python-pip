@@ -17,15 +17,15 @@
 %endif
 
 Name:           %{?scl_prefix}python-%{srcname}
-Version:        7.1.0
-Release:        2%{?dist}
+Version:        8.1.2
+Release:        1%{?dist}
 Summary:        A tool for installing and managing Python packages
 
 Group:          Development/Libraries
 License:        MIT
 URL:            http://www.pip-installer.org
-Source0:        http://pypi.python.org/packages/source/p/pip/%{srcname}-%{version}.tar.gz
-Patch0:         pip-1.5rc1-allow-stripping-prefix-from-wheel-RECORD-files.patch
+Source0:        https://files.pythonhosted.org/packages/source/p/pip/%{srcname}-%{version}.tar.gz
+Patch0:         allow-stripping-given-prefix-from-wheel-RECORD-files.patch
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -113,6 +113,12 @@ sed -i -e "s/^\\(complete.*\\) pip\$/\\1 $pips2/" \
 
 
 %changelog
+* Mon Jan 16 2017 Tomas Orsava <torsava@redhat.com> - 8.1.2-1
+- Rebased to 8.1.2
+- Updated to a new PyPI source URL
+- Rebased and renamed prefix-stripping Patch 0
+Resolves: rhbz#1344674
+
 * Tue May 10 2016 Charalampos Stratakis <cstratak@redhat.com> - 7.1.0-2
 - Change license tag to doc tag so directory is owned by the collection
 - Will revert when ownership of directories is defined in scl-utils-build package
