@@ -2,7 +2,7 @@
 %{!?scl:%global pkg_name %{name}}
 
 %if (! 0%{?rhel}) || 0%{?rhel} > 5
-%global build_wheel 0
+%global build_wheel 1
 %endif
 %if 0%{?rhel} && 0%{?rhel} < 6
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
@@ -15,7 +15,7 @@
 
 Name:           %{?scl_prefix}python-%{srcname}
 Version:        9.0.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A tool for installing and managing Python packages
 
 Group:          Development/Libraries
@@ -88,6 +88,9 @@ pip3 install -I dist/%{python3_wheelname} --root %{buildroot} --strip-file-prefi
 %{python3_sitelib}/pip*
 
 %changelog
+* Wed Jun 14 2017 Iryna Shcherbina <ishcherb@redhat.com> - 9.0.1-2
+- Bootstrapping procedure, step 2/2: build_wheel 1
+
 * Wed Jun 14 2017 Iryna Shcherbina <ishcherb@redhat.com> - 9.0.1-1
 - Update to version 9.0.1 and rebuild for rh-python36
 - Bootstrapping procedure, step 1/2: build_wheel 0
