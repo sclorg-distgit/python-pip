@@ -20,7 +20,7 @@ Name:           %{?scl_prefix}python-%{srcname}
 # When updating, update the bundled libraries versions bellow!
 # You can use vendor_meta.sh in the dist git repo
 Version:        19.2.3
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A tool for installing and managing Python packages
 
 # We bundle a lot of libraries with pip, which itself is under MIT license.
@@ -311,12 +311,12 @@ done
 mkdir -p %{buildroot}%{bashcompdir}
 PYTHONPATH=%{buildroot}%{python3_sitelib} \
     %{buildroot}%{_bindir}/pip completion --bash \
-    > %{buildroot}%{bashcompdir}/pip3.8
+    > %{buildroot}%{bashcompdir}/pip3
 
 # Make bash completion apply to all the 5 symlinks we install
-sed -i -e "s/^\\(complete.*\\) pip\$/\\1 pip{,-}%{python3_version}/" \
-    -e s/_pip_completion/_pip38_completion/ \
-    %{buildroot}%{bashcompdir}/pip3.8
+sed -i -e "s/^\\(complete.*\\) pip\$/\\1 pip pip{,-}{3,%{python3_version}}/" \
+    -e s/_pip_completion/_pip3_completion/ \
+    %{buildroot}%{bashcompdir}/pip3
 
 
 # Provide symlinks to executables to comply with Fedora guidelines for Python
@@ -330,11 +330,6 @@ echo rpm > %{buildroot}%{python3_sitelib}/pip-%{version}.dist-info/INSTALLER
 
 mkdir -p %{buildroot}%{python_wheeldir}
 install -p dist/%{python_wheelname} -t %{buildroot}%{python_wheeldir}
-
-# RHEL8: Remove binaries conflicting with Python 3.6
-rm %{buildroot}%{_bindir}/pip
-rm %{buildroot}%{_bindir}/pip3
-rm %{buildroot}%{_bindir}/pip-3
 
 %{?scl:EOF}
 
@@ -372,11 +367,14 @@ ln -sf %{buildroot}%{_bindir}/pip3 _bin/pip
 %{_mandir}/man1/pip3.8.*
 %{_mandir}/man1/pip3.8-*.*
 %endif
+%{_bindir}/pip
+%{_bindir}/pip3
+%{_bindir}/pip-3
 %{_bindir}/pip%{python3_version}
 %{_bindir}/pip-%{python3_version}
 %{python3_sitelib}/pip*
 %dir %{bashcompdir}
-%{bashcompdir}/pip3.8
+%{bashcompdir}/pip3
 
 %if %{with doc}
 %files doc
@@ -393,6 +391,10 @@ ln -sf %{buildroot}%{_bindir}/pip3 _bin/pip
 
 
 %changelog
+* Thu Jan 30 2020 Tomas Orsava <torsava@redhat.com> - 19.2.3-6
+- Add unversioned binaries
+- Resolves: rhbz#1671025
+
 * Wed Jan 29 2020 Tomas Orsava <torsava@redhat.com> - 19.2.3-5
 - Modified the specfile for the rh-python38 RHSCL
 - Resolves: rhbz#1671025
