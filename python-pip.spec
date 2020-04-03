@@ -20,7 +20,7 @@ Name:           %{?scl_prefix}python-%{srcname}
 # When updating, update the bundled libraries versions bellow!
 # You can use vendor_meta.sh in the dist git repo
 Version:        19.2.3
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        A tool for installing and managing Python packages
 
 # We bundle a lot of libraries with pip, which itself is under MIT license.
@@ -391,6 +391,10 @@ ln -sf %{buildroot}%{_bindir}/pip3 _bin/pip
 
 
 %changelog
+* Fri Feb 07 2020 Tomas Orsava <torsava@redhat.com> - 19.2.3-7
+- Rebuild
+- Resolves: rhbz#1671025
+
 * Thu Jan 30 2020 Tomas Orsava <torsava@redhat.com> - 19.2.3-6
 - Add unversioned binaries
 - Resolves: rhbz#1671025
